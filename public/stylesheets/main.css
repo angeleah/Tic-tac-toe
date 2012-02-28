@@ -1,0 +1,30 @@
+#board{
+	width: 300px;
+	margin: 50% 0 0 50%;
+	position: relative;
+	top: -150px;
+	left: -150px;
+}
+
+table {
+	border-width: 1px;
+	border-style: hidden;
+	border-collapse: collapse;
+}
+
+td{
+	border-width: 3px;
+	padding: 0;
+	border: solid 1px black;
+}
+
+td a{
+	display: block;
+	height:100px;
+	width:100px;
+}
+
+#quit_link{
+	position: absolute;
+	
+}
