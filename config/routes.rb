@@ -2,7 +2,7 @@ Ttt::Application.routes.draw do
   get "board/boards"
 
   root :to => "home#index"
-  match '/board', :to => 'board#board'
+  match '/board', :to => 'board#index'
     
 
   # The priority is based upon order of creation:

@@ -1,0 +1,26 @@
+<div id="board">
+	<table cellspacing="0" cellpadding="0">
+		<thead>
+		</thead>
+		<tbody>
+			<tr>
+				
+				<td><%= link_to "#{@board[0]}", board_path %></td>
+				<td><%= link_to "#{@board[1]}", board_path %></td>
+				<td><%= link_to "#{@board[2]}", board_path %></td>
+			</tr>
+			<tr>
+				<td><%= link_to "#{@board[4]}", board_path %></td>
+				<td><%= link_to "#{@board[5]}", board_path %></td>
+				<td><%= link_to "#{@board[6]}", board_path %></td>
+			</tr>
+			<tr>
+				<td><%= link_to "#{@board[7]}", board_path %></td>
+				<td><%= link_to "#{@board[8]}", board_path %></td>
+				<td><%= link_to "#{@board[9]}", board_path %></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<br />
+<%= link_to 'Quit game', root_path %>
