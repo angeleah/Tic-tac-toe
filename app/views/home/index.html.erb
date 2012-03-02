@@ -5,8 +5,7 @@ Also called Noughts and crosses (in the UK, Australia, New Zealand, South Africa
 </p>
 <p>
 	Who would you like to start? 
-	<%= link_to "You", board_path %> or the <%= link_to "Computer", board_path %>
+	<%= link_to "You", who_is_first_path(:first => "true") %> or <%= link_to "the Computer", who_is_first_path(:first => "false") %>
 </p>
-<!--if the computer starts jump to to screen where the computer has it's first move.
-else go to blank board and allow user to select square.
->
+
+
