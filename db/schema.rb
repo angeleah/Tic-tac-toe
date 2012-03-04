@@ -14,9 +14,10 @@
 ActiveRecord::Schema.define(:version => 20120302153604) do
 
   create_table "players", :force => true do |t|
-    t.boolean  "player_1",   :default => false
-    t.datetime "created_at",                    :null => false
-    t.datetime "updated_at",                    :null => false
+    t.datetime "created_at",                                                            :null => false
+    t.datetime "updated_at",                                                            :null => false
+    t.boolean  "player_1"
+    t.boolean  "#<ActiveRecord::ConnectionAdapters::TableDefinition:0x007f9530025860>"
   end
 
 end

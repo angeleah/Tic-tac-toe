@@ -6,9 +6,8 @@ Ttt::Application.routes.draw do
   root :to => "home#index"
   match '/board', :to => 'board#index'
   match '/blog', :to => 'blog#index'
-  get "who_is_first" => "board#index"
-  post "who_is_first" => "board#index"
-    
+  get "who_is_first" => "board#who_is_first"
+  get "quit_game" => "board#quit_game"  
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
