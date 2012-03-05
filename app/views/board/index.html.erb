@@ -5,19 +5,19 @@
 		<tbody>
 			<tr>
 				
-				<td><%= link_to "#{@board[0]}", board_path(:square => "X", :o => "O", ) %></td>
-				<td><%= link_to "#{@board[1]}", board_path(:square => "X") %></td>
-				<td><%= link_to "#{@board[2]}", board_path(:square => "X") %></td>
+				<td><%= link_to "#{@board[:s0]}", human_move_path(:square => "s0") %></td>
+				<td><%= link_to "#{@board[:s1]}", human_move_path(:square => "s1") %></td>
+				<td><%= link_to "#{@board[:s2]}", human_move_path(:square => "s2") %></td>
 			</tr>
 			<tr>
-				<td><%= link_to "#{@board[4]}", board_path(:square => "X") %></td>
-				<td><%= link_to "#{@board[5]}", board_path(:square => "X") %></td>
-				<td><%= link_to "#{@board[6]}", board_path(:square => "X") %></td>
+				<td><%= link_to "#{@board[:s3]}", human_move_path(:square => "s3") %></td>
+				<td><%= link_to "#{@board[:s4]}", human_move_path(:square => "s4") %></td>
+				<td><%= link_to "#{@board[:s5]}", human_move_path(:square => "s5") %></td>
 			</tr>
 			<tr>
-				<td><%= link_to "#{@board[7]}", board_path(:square => "X") %></td>
-				<td><%= link_to "#{@board[8]}", board_path(:square => "X") %></td>
-				<td><%= link_to "#{@board[9]}", board_path(:square => "X") %></td>
+				<td><%= link_to "#{@board[:s6]}", human_move_path(:square => "s6") %></td>
+				<td><%= link_to "#{@board[:s7]}", human_move_path(:square => "s7") %></td>
+				<td><%= link_to "#{@board[:s8]}", human_move_path(:square => "s8") %></td>
 			</tr>
 		</tbody>
 	</table>
