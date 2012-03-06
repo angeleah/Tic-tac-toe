@@ -1,4 +1,4 @@
-class ChnagePlayer1ToIsFirst < ActiveRecord::Migration
+ class ChnagePlayer1ToIsFirst < ActiveRecord::Migration
   def up
     remove_column :players, :is_first
     add_column :players, :is_first, :boolean
