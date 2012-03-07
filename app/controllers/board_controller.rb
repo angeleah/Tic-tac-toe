@@ -66,9 +66,28 @@ class BoardController < ApplicationController
    @board = Board.first.destroy
    render "home/index"
  end
-end 
+ 
 #How do I determine if game board is at win lose or draw?
- 
- 
 
+=begin 
+ def possible_outcomes
+   @diagonal_right = []
+   @diagonal_left = []
+   @horizontal_top = []
+   @horizontal_middle = []
+   @horizontal_bottom = []
+   @vertical_left = []
+   @vertical_middle = []
+   @vertical_right = []
+   if any of the arrays have 3 in a row of the same either x or o
+     @message_winner = "Congrats Player you are the winner."
+     @message_loser = "Congrats Player. you are the loser." # it would be fun to keep track of games and make snarky remarks, like you lost, again.  etc. 
+   elsif all of the board is full but no 3 in a row 
+     @message = "It is a draw."
+     #option to play again
+     
+ end
+=end   
+   
 
+end
