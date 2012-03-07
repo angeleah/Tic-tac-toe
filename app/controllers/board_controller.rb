@@ -20,13 +20,14 @@ class BoardController < ApplicationController
       Player.first.update_attribute(:is_first, true)        
     else  
       params[:first] == "false"
-      Player.first.update_attribute(:is_first, false)        
+      Player.first.update_attribute(:is_first, false) 
+      computer_move       
     end
     @player.save  
     render "board/index"
   end
   
-  def x_or_o
+  def set_player_markers #is there a better name for this?
     @player = Player.first
     if @player[:is_first] 
        @human_player = "X"
@@ -41,13 +42,13 @@ class BoardController < ApplicationController
    @board = Board.first
    @player = Player.first
    human_move = params[:square].to_sym    
-   x_or_o
+   set_player_markers
    @board[human_move] = @human_player
    @board.save
-   computer_move   
+   computer_move 
+   render "board/index"  
  end
  
-
  def computer_move
    available_computer_moves = []
    @board.attributes.each do |column_name, column_value|
@@ -55,23 +56,19 @@ class BoardController < ApplicationController
        available_computer_moves << column_name     
      end
    end
-   x_or_o
+   set_player_markers
    @board[available_computer_moves.first] = @computer_player
    @board.save
-   render "board/index"
  end
-  
   
  def quit_game
    @player = Player.first.destroy
    @board = Board.first.destroy
    render "home/index"
  end
-
-
-#create model for board. * columns
-
+end 
 #How do I determine if game board is at win lose or draw?
  
-end
+ 
+
 
