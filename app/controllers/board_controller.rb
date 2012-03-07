@@ -49,16 +49,15 @@ class BoardController < ApplicationController
  
 
  def computer_move
-#   available_computer_moves = []
-#   @board.attributes.each do |column_name, column_value|
-#     if column_value.nil?
-#       available_computer_moves << column_name     
-#     end
-#   end 
-       
-#   x_or_o
- #  @board[computer_move] = @computer_player
- #  @board.save
+   available_computer_moves = []
+   @board.attributes.each do |column_name, column_value|
+     if column_value.nil?
+       available_computer_moves << column_name     
+     end
+   end
+   x_or_o
+   @board[available_computer_moves.first] = @computer_player
+   @board.save
    render "board/index"
  end
   
