@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(:version => 20120306213827) do
   create_table "players", :force => true do |t|
     t.datetime "created_at",                                                            :null => false
     t.datetime "updated_at",                                                            :null => false
-    t.boolean  "#<ActiveRecord::ConnectionAdapters::TableDefinition:0x007f8752cc0048>"
+    t.boolean  "#<ActiveRecord::ConnectionAdapters::TableDefinition:0x00000102a3e9d8>"
     t.boolean  "is_first"
   end
 

@@ -41,9 +41,9 @@ class BoardController < ApplicationController
  def human_move
    @board = Board.first
    @player = Player.first
-   human_move = params[:square].to_sym    
+   square_pressed = params[:square].to_sym    
    set_player_markers
-   @board[human_move] = @human_player
+   @board[square_pressed] = @human_player
    @board.save
    computer_move 
    render "board/index"  
@@ -71,14 +71,16 @@ class BoardController < ApplicationController
 
 =begin 
  def possible_outcomes
-   @diagonal_right = []
-   @diagonal_left = []
-   @horizontal_top = []
-   @horizontal_middle = []
-   @horizontal_bottom = []
-   @vertical_left = []
-   @vertical_middle = []
-   @vertical_right = []
+   @diagonal_right = [s0,s4,s8] #if @board.attributes are 3 x or 3 o in [s0,s4,s8] then congratulate winner
+   make this a hash with 
+   key                value
+   @diagonal_left = [s2,s4,s6]
+   @horizontal_top = [s0,s1,s2]
+   @horizontal_middle = [s3,s4,s5]
+   @horizontal_bottom = [s6,s7,s8]
+   @vertical_left = [s0,s3,s6]
+   @vertical_middle = [s1,s4,s7]
+   @vertical_right = [s2,s5,s8]
    if any of the arrays have 3 in a row of the same either x or o
      @message_winner = "Congrats Player you are the winner."
      @message_loser = "Congrats Player. you are the loser." # it would be fun to keep track of games and make snarky remarks, like you lost, again.  etc. 
@@ -86,6 +88,17 @@ class BoardController < ApplicationController
      @message = "It is a draw."
      #option to play again
      
+ end
+ 
+ 
+ def evaluate
+ available_computer_moves = []
+ @evaluate.attributes.each do |column_name, column_value|
+    if column_value = +1  #figure how to use/can use pos and neg numbers
+      available_computer_moves << column_name     
+    end
+  end
+  
  end
 =end   
    
