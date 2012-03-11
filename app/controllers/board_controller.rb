@@ -46,7 +46,9 @@ class BoardController < ApplicationController
    @board[square_pressed] = @human_player
    @board.save
    computer_move 
-   render "board/index"  
+   determine_winner
+   @message = "#{@detect_wins}"  
+   render "board/index" 
  end
  
  def computer_move
@@ -59,37 +61,125 @@ class BoardController < ApplicationController
    set_player_markers
    @board[available_computer_moves.first] = @computer_player
    @board.save
+   determine_winner
+   @message = "#{@detect_wins}"
  end
   
  def quit_game
    @player = Player.first.destroy
    @board = Board.first.destroy
    render "home/index"
+ end 
+ 
+ def determine_winner
+   @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
+   @board = Board.first
+   @detect_wins = []
+   @possible_wins.each do |combination| 
+     @group = []
+     combination.each do |position|     
+       @group << @board[position].to_s
+     end 
+     @detect_wins << @group
+   end
  end
  
-#How do I determine if game board is at win lose or draw?
+ 
+ 
+=begin  
+ def determine_winner
+   possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
+   @board = Board.first
+   @detect_wins = []
+   possible_wins.each do |combination| 
+     @row = []
+     combination.each do |position|     
+       @row << @board[position].to_s
+     end 
+     @detect_wins << @row
+   end
+ end
+ 
+ #       win = true
+ #       if @board[position] == "X"
+ #         row << "X"
+ #       end
+ #       if row.match /O/
+ #         win = false
+ #       end
+   
+   
+   
 
-=begin 
- def possible_outcomes
-   @diagonal_right = [s0,s4,s8] #if @board.attributes are 3 x or 3 o in [s0,s4,s8] then congratulate winner
-   make this a hash with 
-   key                value
-   @diagonal_left = [s2,s4,s6]
-   @horizontal_top = [s0,s1,s2]
-   @horizontal_middle = [s3,s4,s5]
-   @horizontal_bottom = [s6,s7,s8]
-   @vertical_left = [s0,s3,s6]
-   @vertical_middle = [s1,s4,s7]
-   @vertical_right = [s2,s5,s8]
-   if any of the arrays have 3 in a row of the same either x or o
-     @message_winner = "Congrats Player you are the winner."
+
+here are the possible moves. I need to
+-compare the values
+-return w,l,or,d
+
+
+  
+   possible_wins.each do |column_value|
+      if column_value == "X" 
+       
+      elsif
+         column_value == "O" 
+        @message = "O is the winner!" 
+      elsif
+        column_value != nil && column_value != "X" && column_value != "O"
+        @message = "It is a draw."          
+      end
+   end  
+ end 
+
+ 
+# def determine_winner
+#   @board = Board.first
+#    possible_wins.each do |array|
+# array.each do |column_value|
+#       if column_value.all == "X" 
+#         @message = "X is the winner!"
+#        elsif
+#           column_value.all == "O" && value !nil
+#          @message = "O is the winner!" 
+#        elsif
+#          column_value.!nil && column_value !=
+#          @message = "It is a draw."          
+#       end         
+#      end  
+#    end  
+# end
+
+ def possible_wins
+   @diagonal_right = [:s0,:s4,:s8] 
+   @diagonal_left = [:s2,:s4,:s6]
+   @horizontal_top = [:s0,:s1,:s2]
+   @horizontal_middle = [:s3,:s4,:s5]
+   @horizontal_bottom = [:s6,:s7,:s8]
+   @vertical_left = [:s0,:s3,:s6]
+   @vertical_middle = [:s1,:s4,:s7]
+   @vertical_right = [:s2,:s5,:s8]
+ end  
+ 
+ def determine_winner
+   @board = Board.first
+   possible_wins.each do |column_name, column_value|
+      if column_value == "X" 
+       @message = "X is the winner!"
+      elsif
+         column_value == "O" 
+        @message = "O is the winner!" 
+      elsif
+        column_value != nil && column_value != "X" && column_value != "O"
+        @message = "It is a draw."          
+      end
+   end  
+ end
+   
      @message_loser = "Congrats Player. you are the loser." # it would be fun to keep track of games and make snarky remarks, like you lost, again.  etc. 
    elsif all of the board is full but no 3 in a row 
      @message = "It is a draw."
      #option to play again
-     
- end
- 
+    
  
  def evaluate
  available_computer_moves = []
@@ -100,7 +190,6 @@ class BoardController < ApplicationController
   end
   
  end
-=end   
-   
-
+  
+=end
 end
