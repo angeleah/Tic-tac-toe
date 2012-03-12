@@ -95,8 +95,11 @@ class BoardController < ApplicationController
  
  
  
- # !!!! There is a problem if you win on the last square press!!!!!!  It will not register. 
- 
+ # !!!! There is a problem if you win on the last square press!!!!!!  It will not register. Maybe make an
+#  array with all of the :s0, :s2, etc and pop them off when they are pressed or used by the computer
+#  and then when it has 0 if no one won it would be a draw or if you add them in when it has 9 and no winner it will be a draw. 
+ # I believe the problem has to do with the automatic ping ponging back and forth between the human_move and computer_move. 
+ #Check the error screen. 
  
 =begin 
   def detect_draw
