@@ -27,7 +27,7 @@ class BoardController < ApplicationController
     render "board/index"
   end
   
-  def set_player_markers #is there a better name for this?
+  def set_player_markers 
     @player = Player.first
     if @player[:is_first] 
        @human_player = "X"
@@ -47,7 +47,7 @@ class BoardController < ApplicationController
    @board.save
    computer_move 
    determine_winner
-   @message = "#{@detect_wins}"  
+   @message   
    render "board/index" 
  end
  
@@ -62,7 +62,7 @@ class BoardController < ApplicationController
    @board[available_computer_moves.first] = @computer_player
    @board.save
    determine_winner
-   @message = "#{@detect_wins}"
+   @message 
  end
   
  def quit_game
@@ -78,58 +78,66 @@ class BoardController < ApplicationController
    @possible_wins.each do |combination| 
      @group = []
      combination.each do |position|     
-       @group << @board[position].to_s
+       @group << @board[position]    
      end 
      @detect_wins << @group
    end
+    @detect_wins.each do |value|
+      if value == ["X","X","X"]
+       @message = "Player X is the winner!"
+      elsif value == ["O","O","O"]
+        @message = "Player O is the winner!" 
+      end      
+    end 
+#    detect_draw  
+#     @message = "#{@board.attributes}"  
  end
  
  
  
-=begin  
- def determine_winner
-   possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
-   @board = Board.first
-   @detect_wins = []
-   possible_wins.each do |combination| 
-     @row = []
-     combination.each do |position|     
-       @row << @board[position].to_s
-     end 
-     @detect_wins << @row
-   end
- end
+ # !!!! There is a problem if you win on the last square press!!!!!!  It will not register. 
  
- #       win = true
- #       if @board[position] == "X"
- #         row << "X"
- #       end
- #       if row.match /O/
- #         win = false
- #       end
-   
-   
-   
+ 
+=begin 
+  def detect_draw
+    @board = Board.first
+    detect_draw = [] 
+    @board.attributes.each do |c, v|
+      if v.nil?
+        detect_draw << v     
+      end
+    end  
+    if detect_draw.empty? == true
+      @message = "It is a draw."
+    end 
+#    render "board/index"  
+  end
 
 
-here are the possible moves. I need to
--compare the values
--return w,l,or,d
+ def win_lose_draw
+  @board = Board.first
+  @what_is_going_on = []
+  @detect_wins.each do |combination|
+    @what_is_going_on << combination
+    @message = "#{@what_is_going_on}"
+#    
+#    elsif 
+ #      @board.attributes.each do |column_name, column_value|
+#          if column_value.all !=nil
+ #           @message = "It is a draw."
+#    end  
+#  end  
+  render "board/index" 
+ end
+end 
+=end 
+ 
+=begin
+ 
 
-
-  
-   possible_wins.each do |column_value|
-      if column_value == "X" 
-       
-      elsif
-         column_value == "O" 
-        @message = "O is the winner!" 
-      elsif
         column_value != nil && column_value != "X" && column_value != "O"
         @message = "It is a draw."          
-      end
-   end  
- end 
+
 
  
 # def determine_winner
