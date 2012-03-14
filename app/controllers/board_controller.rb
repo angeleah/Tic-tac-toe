@@ -104,7 +104,7 @@ class BoardController < ApplicationController
           end 
        end        
     end 
-    @message = "#{@detect_wins}"
+    @message = "#{@group}"
  end
 
   def quit_game
@@ -115,7 +115,35 @@ class BoardController < ApplicationController
   
 
   def check_for_a_winning_move
-    #read possible win and look inside array at groups .
+    @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
+    @board = Board.first
+    @detect_wins = []
+    available_moves = []
+    @possible_wins.each do |combination| 
+      @group = {}
+      combination.each do |position| 
+        @winning_moves = []
+        @board.attributes.each do |column_name, column_value|
+          if column_value == @computer_move
+              @group << @board[column_name, column_value]    
+          end
+          
+          @group.each do |marker|
+             if column_value == @computer_move
+                  ?????
+              end
+            available_computer_moves << column_name  
+          end
+        end    
+      @detect_wins << @group
+     end
+     
+     ######  I need to find out if there are 2 X in a group and if there are, return the value of the nil :s in the group. 
+     #choose that.  if there are two, pick either one.
+     
+     
+    http://stackoverflow.com/questions/5128200/how-to-count-identical-string-elements-in-a-ruby-array
+    #read possible wins and look inside array at groups .
     #if there are any groups with 2 of @computer_player values,
 #    choose that move.
 #    if not, check_for_a_blocking_move
