@@ -1,5 +1,4 @@
 #big problems are only scary when you refuse to believe you can solve them. 
-
 class BoardController < ApplicationController  
   def index
    @board = Board.first
@@ -52,26 +51,6 @@ class BoardController < ApplicationController
    computer_move
    render "board/index"
  end
- 
-# def computer_move
-#  computer_first_move
-#  set_player_markers
-#  @board.save
-#  determine_winner_or_draw
-#  @message 
- #end
-=begin 
- def computer_first_move
-    possible_first_moves = [:s0,:s2,:s6,:s8,:s4]
-    first_move = possible_first_moves.sample 
-    set_player_markers   
-    @board[first_move] = @computer_player
-    @board.save
-    human_move
-    @message = "#{@open_columns}"
-    render "board/index" 
-  end
-=end 
 
  def computer_move
    @board = Board.first
@@ -125,7 +104,7 @@ class BoardController < ApplicationController
           end 
        end        
     end 
-#    @message = "#{@detect_wins}"
+    @message = "#{@detect_wins}"
  end
 
   def quit_game
@@ -134,35 +113,52 @@ class BoardController < ApplicationController
     render "home/index"
   end
   
-=begin  
-  def computer_first_move
-    @open_columns = []
-    @board = Board.first
-    possible_first_moves = [:s0,:s2,:s6,:s8,:s4]
-    first_move = possible_first_moves.sample
-    @board.attributes.each do |column_name, column_value|
-      if column_value.nil?
-        @open_columns << column_name  
-      end
-    end
-    if @open_columns.length == 8
-      @board[first_move] = @computer_player
-    elsif @open_columns.length != 8   
-      check_for_a_winning_move
-    end
-    @message = "#{@open_columns}"
-    @board.save
-  end
-=end  
+
   def check_for_a_winning_move
+    #read possible win and look inside array at groups .
+    #if there are any groups with 2 of @computer_player values,
+#    choose that move.
+#    if not, check_for_a_blocking_move
+  end
+  
+  
+  def check_for_a_blocking_move
+       #read possible win and look inside array at groups .
+        #if there are any groups with 2 of @human_player values,
+    #    choose that move.
+    #    if not, check_for_best_move
     
+  end
+  
+  def decide_on_best_move
+    #determine if something could possibly result in a win by determining if I could get 3 @computer_moves out of it.
+    #if they are all nil, then yes.
+    #if there is 1 x then yes.
+    
+    #then i need a way to map these nil values that could be a potential best move to their square. 
+    #maybe an array of hashes [s0 -> nil, s1 =>x, s3 => nil]
+    
+  #then I need to keep track of how many times each square value is used. 
+  #then I need to pick the square with the biggest number of use.
+  #if the largest number is shared with others, select all of them into an array. 
+  
+  
+  ####then find out all possible moves :s(#) where the human player has a value in the array ie. [:s0 =>nil, :s3 => O, :s6 =>nil ]
+  # @human move in possible win [ nil, nil, O]
+  #return :s values into an array
+  
+  #then do an array of possible_best_computer_moves - an array of blocked_moves = an array 
+  # then if there is more than 1 value. do a sample on it. 
+  
+  
+  #and that is hopefully it.  BABY STEPS!!!!!!
+  
   end
   
   
 =begin  
  chunks-
-- get computer to choose random corner move
- -got computer to choose winning move if there are 3 in a row.
+ -got computer to choose winning move if there are 2 in a row.
  -get computer to block if opponent has 3 in a row.
  figure out best move detection if the  
  
