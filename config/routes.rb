@@ -4,7 +4,7 @@ Ttt::Application.routes.draw do
   root :to => "home#index"
   match '/board', :to => 'board#index'
   match '/blog', :to => 'blog#index'
-  get "who_is_first" => "board#who_is_first"
+  get "start_game" => "board#start_game"
   get "quit_game" => "board#quit_game"
   get "human_move" => "board#human_move"  
 

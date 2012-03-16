@@ -1,7 +1,7 @@
 #big problems are only scary when you refuse to believe you can solve them. 
 class BoardController < ApplicationController  
   def index
-   @board = Board.first
+    @board = Board.first
   end 
   
   def create_new_board
@@ -14,106 +14,159 @@ class BoardController < ApplicationController
     @player.save
   end
   
-  def who_is_first
+  def create_new_turn
+    @turn = Turn.new
+    @turn.save
+  end
+  
+  def start_game
     create_new_board
     create_new_player
+    create_new_turn
     if params[:first] == "true"
-      Player.first.update_attribute(:is_first, true)        
+      Player.first.update_attribute(:is_first, true) 
+      Turn.first.update_attribute(:player, "human")     
     else  
       params[:first] == "false"
-      Player.first.update_attribute(:is_first, false) 
-      computer_move       
-    end
-    @player.save  
-    render "board/index"
+      Player.first.update_attribute(:is_first, false)
+      Turn.first.update_attribute(:player, "computer")     
+    end 
+    @player.save 
+    update_turn
   end
   
   def set_player_markers 
     @player = Player.first
     if @player[:is_first] 
-       @human_player = "X" 
-       @computer_player = "O"
-      else
-       @human_player = "O" 
-       @computer_player = "X"    
-      end
+      @human_player = "X" 
+      @computer_player = "O"
+    else
+      @human_player = "O" 
+      @computer_player = "X"    
+    end
   end
   
- def human_move
-   @board = Board.first
-   @player = Player.first
-   set_player_markers
-   square_pressed = params[:square].to_sym    
-   @board[square_pressed] = @human_player
-   @board.save
-   determine_winner_or_draw
-   @message
-   computer_move
-   render "board/index"
- end
-
- def computer_move
-   @board = Board.first
-   possible_first_moves = [:s0,:s2,:s6,:s8,:s4]
-   first_move = possible_first_moves.sample
-   available_computer_moves = []
-   @board.attributes.each do |column_name, column_value|
-     if column_value.nil?
-       available_computer_moves << column_name  
-     end
-   end
-   set_player_markers
-   if available_computer_moves.length == 9
-     @board[first_move] = @computer_player
-   elsif available_computer_moves.empty? == true
-     determine_winner_or_draw
-   elsif available_computer_moves.length != 9 
-#     move_to_choose
-     @board[available_computer_moves.first] = @computer_player
-   end   
-   @board.save
-   determine_winner_or_draw
-   @message
- end
+  def set_up_turn
+    @board = Board.first
+    @player = Player.first
+    @turn = Turn.first
+    set_player_markers
+  end
   
- def determine_winner_or_draw
-   @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
-   @board = Board.first
-   @detect_wins = []
-   available_moves = []
-   @possible_wins.each do |combination| 
-     @group = []
-     combination.each do |position|     
-       @group << @board[position]    
-     end 
-     @detect_wins << @group
-   end
-    @detect_wins.each do |value|
-      if value == ["X","X","X"]
-       @message = "Player X is the winner!"
-      elsif value == ["O","O","O"]
-       @message = "Player O is the winner!"  
-      elsif  
-         @board.attributes.each do |column_name, column_value|
-           if column_value.nil?
-             available_moves << column_name       
-           end
-         end
-         if available_moves.empty? == true
-           @message = "It's a draw." 
-          end 
-       end        
+  def update_turn
+    @turn.save
+    @turn = Turn.first
+    if @turn[:player] == "human"
+      render "board/index"  
+    else
+      computer_move  
+    end
+  end
+     
+  def end_turn
+    @board.save
+    score_game
+    if game_is_over
+       render "board/index"
+    else   
+      if @turn[:player] == "human" 
+        find_available_moves
+        if @available_moves.empty? 
+          render "board/index" 
+        else  
+          Turn.first.update_attribute(:player, "computer")
+        end
+      else 
+        Turn.first.update_attribute(:player, "human") 
+      end
+      @turn.save unless @available_moves.empty?
+      update_turn unless @available_moves.empty?
+    end  
+  end
+  
+  def human_move
+    set_up_turn
+    square_pressed = params[:square].to_sym    
+    @board[square_pressed] = @human_player
+    end_turn 
+  end
+ 
+  def computer_first_move_setup
+    @possible_first_moves = [:s0,:s2,:s6,:s8,:s4]
+    @first_move = @possible_first_moves.sample
+  end
+  
+  def non_ai_computer_moves
+    @available_computer_moves = []     
+    @board.attributes.each do |column_name, column_value|
+      if column_value.nil?
+        @available_computer_moves << column_name  
+      end
     end 
-    @message = "#{@group}"
- end
+  end
+
+  def computer_move
+    set_up_turn
+    computer_first_move_setup
+    non_ai_computer_moves   
+    #check_for_a_winning_move
+    @board[@first_move] = @computer_player 
+    end_turn  
+  end
+  
+  def mapping_possible_wins_to_the_actual_board_state
+    @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
+    @detect_wins = []
+    @possible_wins.each do |combination| 
+      @group = []
+      combination.each do |position|     
+        @group << @board[position]    
+      end 
+      @detect_wins << @group
+    end
+    #@message = "#{@detect_wins}"
+  end
+  
+  def determine_winner
+    @someone_has_won = false
+    @detect_wins.each do |value|
+      if value == ["#{@computer_player}","#{@computer_player}","#{@computer_player}"]
+       @message = "The Computer is the winner!"
+       @someone_has_won = true
+      elsif value == ["#{@human_player}","#{@human_player}","#{@human_player}"]
+       @message = "You are the winner!"
+       @someone_has_won = true
+      end  
+    end
+  end
+    
+  def find_available_moves   
+    @available_moves = []
+    @board.attributes.each do |column_name, column_value|
+      @available_moves << column_name if column_value.nil?      
+    end
+  end 
+
+  def score_game
+    mapping_possible_wins_to_the_actual_board_state
+    determine_winner
+    if !@someone_has_won && game_is_over 
+      @message = "It's a draw."
+    end
+  end
+  
+  def game_is_over
+    find_available_moves   
+    @available_moves.empty?
+  end
 
   def quit_game
     @player = Player.first.destroy
     @board = Board.first.destroy
+    @turn = Turn.first.destroy
     render "home/index"
   end
-  
-
+=begin  
   def check_for_a_winning_move
     @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
     @board = Board.first
@@ -125,25 +178,25 @@ class BoardController < ApplicationController
         @winning_moves = []
         @board.attributes.each do |column_name, column_value|
           if column_value == @computer_move
-              @group << @board[column_name, column_value]    
+            @group << @board[column_name, column_value]    
           end
           
           @group.each do |marker|
-             if column_value == @computer_move
-                  ?????
-              end
+            if column_value == @computer_move
+              ?????
+            end
             available_computer_moves << column_name  
           end
         end    
-      @detect_wins << @group
-     end
+        @detect_wins << @group
+      end
      
-     ######  I need to find out if there are 2 X in a group and if there are, return the value of the nil :s in the group. 
-     #choose that.  if there are two, pick either one.
+      ######  I need to find out if there are 2 X in a group and if there are, return the value of the nil :s in the group. 
+      #choose that.  if there are two, pick either one.
      
      
-    http://stackoverflow.com/questions/5128200/how-to-count-identical-string-elements-in-a-ruby-array
-    #read possible wins and look inside array at groups .
+      http://stackoverflow.com/questions/5128200/how-to-count-identical-string-elements-in-a-ruby-array
+      #read possible wins and look inside array at groups .
     #if there are any groups with 2 of @computer_player values,
 #    choose that move.
 #    if not, check_for_a_blocking_move
