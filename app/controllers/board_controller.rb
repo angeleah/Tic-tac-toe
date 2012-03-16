@@ -1,4 +1,3 @@
-#big problems are only scary when you refuse to believe you can solve them. 
 class BoardController < ApplicationController  
   def index
     @board = Board.first
@@ -110,7 +109,7 @@ class BoardController < ApplicationController
     computer_first_move_setup
     non_ai_computer_moves   
     #check_for_a_winning_move
-    @board[@first_move] = @computer_player 
+    @board[@available_computer_moves.first] = @computer_player 
     end_turn  
   end
   
