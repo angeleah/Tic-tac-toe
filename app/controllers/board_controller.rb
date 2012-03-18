@@ -108,7 +108,7 @@ class BoardController < ApplicationController
     set_up_turn
     computer_first_move_setup
     non_ai_computer_moves   
-    #check_for_a_winning_move
+    check_board_status
     @board[@available_computer_moves.first] = @computer_player 
     end_turn  
   end
@@ -165,36 +165,52 @@ class BoardController < ApplicationController
     @turn = Turn.first.destroy
     render "home/index"
   end
+  
+  def check_board_status
+    @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
+    @check_for_possible_win = []
+    @possible_wins.each do |combination| 
+      @group = []
+      combination.each do |position|
+        if @board[position] == @computer_player || @board[position] == @human_player    
+          @group << @board[position] 
+        elsif @board[position].nil?
+          @group << position     
+        end     
+      end 
+      @check_for_possible_win << @group
+    end
+    @message = "#{@check_for_possible_win}"
+  end
+  
+  def find_a_winning_move
+    @check_for_possible_win.each do |combination|
+     @winning_move = []
+     combination.each do |position|
+        
+     end  
+   end    
+  end
+  
+  
+  
+  
+  
 =begin  
   def check_for_a_winning_move
-    @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
-    @board = Board.first
-    @detect_wins = []
-    available_moves = []
-    @possible_wins.each do |combination| 
-      @group = {}
-      combination.each do |position| 
-        @winning_moves = []
-        @board.attributes.each do |column_name, column_value|
-          if column_value == @computer_move
-            @group << @board[column_name, column_value]    
-          end
-          
-          @group.each do |marker|
-            if column_value == @computer_move
-              ?????
-            end
-            available_computer_moves << column_name  
-          end
-        end    
-        @detect_wins << @group
-      end
-     
+   mapping_possible_wins_to_the_actual_board_state
+   current_board_state = @board.attributes do |column_name, column_value|
+    @board[column_name] = @board[column_value]
+   end  
+    @message = "#{@detect_wins}"
+  end
+=end  
+  
+=begin  
+
       ######  I need to find out if there are 2 X in a group and if there are, return the value of the nil :s in the group. 
-      #choose that.  if there are two, pick either one.
+      #choose that.  if there are two, pick either one.  
      
-     
-      http://stackoverflow.com/questions/5128200/how-to-count-identical-string-elements-in-a-ruby-array
       #read possible wins and look inside array at groups .
     #if there are any groups with 2 of @computer_player values,
 #    choose that move.
@@ -235,12 +251,6 @@ class BoardController < ApplicationController
   
   end
   
-  
-=begin  
- chunks-
- -got computer to choose winning move if there are 2 in a row.
- -get computer to block if opponent has 3 in a row.
- figure out best move detection if the  
  
  -figure out how to make the computer choose the 1st or 3rd position if [v, , ] or [ , ,v].
    if two values intersect are = ie [s0-x,s1,s2-  s2 would be the coice ]
@@ -279,11 +289,6 @@ class BoardController < ApplicationController
    a = [ 1, 2, [3, [4, 5] ] ]
    a.flatten(1)              #=> [1, 2, 3, [4, 5]]
    
-   
-   
-   
-
-
 
 =begin
 def possible_wins
