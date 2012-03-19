@@ -90,11 +90,12 @@ class BoardController < ApplicationController
     end_turn 
   end
  
-  def computer_first_move_setup
+  def computer_first_move
     @possible_first_moves = [:s0,:s2,:s6,:s8,:s4]
     @first_move = @possible_first_moves.sample
+    @board[@first_move] = @computer_player
   end
-  
+=begin  
   def non_ai_computer_moves
     @available_computer_moves = []     
     @board.attributes.each do |column_name, column_value|
@@ -103,13 +104,16 @@ class BoardController < ApplicationController
       end
     end 
   end
-
+=end
   def computer_move
     set_up_turn
-    computer_first_move_setup
-    non_ai_computer_moves   
-    check_board_status
-    @board[@available_computer_moves.first] = @computer_player 
+    find_available_moves
+    if @available_moves.length == 9
+      computer_first_move
+    else     
+      check_for_a_winning_move 
+    end
+    #@message = "#{@check_for_a_winning_move}"
     end_turn  
   end
   
@@ -156,7 +160,7 @@ class BoardController < ApplicationController
   
   def game_is_over
     find_available_moves   
-    @available_moves.empty?
+    @available_moves.empty? || @someone_has_won == true
   end
 
   def quit_game
@@ -180,52 +184,61 @@ class BoardController < ApplicationController
       end 
       @check_for_possible_win << @group
     end
-    @message = "#{@check_for_possible_win}"
+#    @message = "#{@check_for_possible_win}"
   end
   
-  def find_a_winning_move
-    @check_for_possible_win.each do |combination|
-     @winning_move = []
-     combination.each do |position|
-        
-     end  
-   end    
-  end
-  
-  
-  
-  
-  
-=begin  
   def check_for_a_winning_move
-   mapping_possible_wins_to_the_actual_board_state
-   current_board_state = @board.attributes do |column_name, column_value|
-    @board[column_name] = @board[column_value]
-   end  
-    @message = "#{@detect_wins}"
+    check_board_status
+    @check_for_a_winning_move = @check_for_possible_win
+    @check_for_a_winning_move.keep_if {|v| v.count(@computer_player) == 2}
+    @check_for_a_winning_move.delete_if {|v| v.count(@human_player) == 1}
+    @check_for_a_winning_move.flatten!
+    @check_for_a_winning_move.delete_if {|v| v == @computer_player}
+    if
+      @check_for_a_winning_move.empty? == false
+      @board[@check_for_a_winning_move.first] = @computer_player
+    else
+      check_for_a_blocking_move  
+    end
+   # @message = "#{@check_for_a_winning_move}"
   end
-=end  
-  
-=begin  
-
-      ######  I need to find out if there are 2 X in a group and if there are, return the value of the nil :s in the group. 
-      #choose that.  if there are two, pick either one.  
-     
-      #read possible wins and look inside array at groups .
-    #if there are any groups with 2 of @computer_player values,
-#    choose that move.
-#    if not, check_for_a_blocking_move
-  end
-  
-  
+ 
   def check_for_a_blocking_move
-       #read possible win and look inside array at groups .
-        #if there are any groups with 2 of @human_player values,
-    #    choose that move.
-    #    if not, check_for_best_move
-    
+    check_board_status
+    @check_for_a_blocking_move = @check_for_possible_win
+    @check_for_a_blocking_move.keep_if {|v| v.count(@human_player) == 2}
+    @check_for_a_blocking_move.delete_if {|v| v.count(@computer_player) == 1}
+    @check_for_a_blocking_move.flatten!
+    @check_for_a_blocking_move.delete_if {|v| v == @human_player}
+    if
+      @check_for_a_blocking_move.empty? == false
+      @board[@check_for_a_blocking_move.first] = @computer_player
+    else
+       @board[@available_moves.first] = @computer_player
+      #decide_on_best_move  
+    end
+   # @message = "#{@check_for_a_blocking_move}"
   end
+ 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+ 
+  
+
+=begin  
   def decide_on_best_move
     #determine if something could possibly result in a win by determining if I could get 3 @computer_moves out of it.
     #if they are all nil, then yes.
