@@ -95,16 +95,7 @@ class BoardController < ApplicationController
     @first_move = @possible_first_moves.sample
     @board[@first_move] = @computer_player
   end
-=begin  
-  def non_ai_computer_moves
-    @available_computer_moves = []     
-    @board.attributes.each do |column_name, column_value|
-      if column_value.nil?
-        @available_computer_moves << column_name  
-      end
-    end 
-  end
-=end
+
   def computer_move
     set_up_turn
     find_available_moves
@@ -113,7 +104,6 @@ class BoardController < ApplicationController
     else     
       check_for_a_winning_move 
     end
-    #@message = "#{@check_for_a_winning_move}"
     end_turn  
   end
   
@@ -127,7 +117,6 @@ class BoardController < ApplicationController
       end 
       @detect_wins << @group
     end
-    #@message = "#{@detect_wins}"
   end
   
   def determine_winner
@@ -184,7 +173,7 @@ class BoardController < ApplicationController
       end 
       @check_for_possible_win << @group
     end
-#    @message = "#{@check_for_possible_win}"
+    @message = "#{@check_for_possible_win}"
   end
   
   def check_for_a_winning_move
@@ -200,7 +189,7 @@ class BoardController < ApplicationController
     else
       check_for_a_blocking_move  
     end
-   # @message = "#{@check_for_a_winning_move}"
+    @message << "#{@check_for_a_winning_move}"
   end
  
   def check_for_a_blocking_move
@@ -214,12 +203,54 @@ class BoardController < ApplicationController
       @check_for_a_blocking_move.empty? == false
       @board[@check_for_a_blocking_move.first] = @computer_player
     else
-       @board[@available_moves.first] = @computer_player
+      @board[@available_moves.first] = @computer_player
       #decide_on_best_move  
     end
-   # @message = "#{@check_for_a_blocking_move}"
+    @message << "#{@check_for_a_blocking_move}"
   end
- 
+=begin  
+  def find_computer_player_containing_combos
+    check_board_status
+    @computer_containing_combos = @check_for_possible_win
+    @computer_containing_combos.keep_if {|v| v.count(@computer_player) == 1}
+    @computer_containing_combos.delete_if {|v| v.count(@human_player) == 1}
+    @computer_containing_combos.flatten!
+    @computer_containing_combos.delete_if {|v| v == @computer_player}
+    @message << "<br />#{@computer_containing_combos}"
+  end
+
+  def find_human_player_containing_combos
+    check_board_status
+    @human_player_containing_combos = @check_for_possible_win
+    @human_player_containing_combos.keep_if {|v| v.count(@human_player) == 1}
+    @human_player_containing_combos.delete_if {|v| v.count(@computer_player) == 1}
+    @human_player_containing_combos.flatten!
+    @human_player_containing_combos.delete_if {|v| v == @human_player}
+    @message << "<br />#{@human_player_containing_combos}"
+  end
+
+  def decide_on_best_move
+    find_computer_player_containing_combos
+    find_human_player_containing_combos
+    @find_best_move = @computer_containing_combos & @human_player_containing_combos
+    if @find_best_move.empty?
+      @board[@available_moves.first] = @computer_player  
+    else
+      @board[@find_best_move.first] = @computer_player
+    end 
+    #@message = "#{@find_best_move}" 
+      
+  end 
+=end   
+end  
+  
+
+  
+#prob if human goes first, how does computer move pick?
+#check into keep if 
+  
+  
+
   
   
   
@@ -262,7 +293,7 @@ class BoardController < ApplicationController
   
   #and that is hopefully it.  BABY STEPS!!!!!!
   
-  end
+
   
  
  -figure out how to make the computer choose the 1st or 3rd position if [v, , ] or [ , ,v].
@@ -303,7 +334,7 @@ class BoardController < ApplicationController
    a.flatten(1)              #=> [1, 2, 3, [4, 5]]
    
 
-=begin
+
 def possible_wins
   @diagonal_right = [:s0,:s4,:s8] 
   @diagonal_left = [:s2,:s4,:s6]
@@ -315,4 +346,3 @@ def possible_wins
   @vertical_right = [:s2,:s5,:s8]
   @board = Board.first
 =end
-end
