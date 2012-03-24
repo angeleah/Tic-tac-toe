@@ -58,7 +58,7 @@ class BoardController < ApplicationController
     if @turn[:player] == "human"
       render "board/index"  
     else
-      computer_move  
+      computer_move#(this is where I need to add the @board?)  
     end
   end
      
@@ -107,7 +107,7 @@ class BoardController < ApplicationController
     end_turn  
   end
   
-  def mapping_possible_wins_to_the_actual_board_state
+  def mapping_possible_wins_to_the_actual_board_state(board)
     @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
     @detect_wins = []
     @possible_wins.each do |combination| 
@@ -226,6 +226,26 @@ class BoardController < ApplicationController
 end  
 #####################  
   so what do i need to determine a fork?
+    I first need the available moves. 
+    best_move = []
+    available moves.each do |move|
+      if move leads to 2 [@comp, s val, @comp][ @comp, @comp, sval]
+        return move
+      elsif move leads to 2 [@human, s val, @human] [@human, s val, @human]
+        don not -choose <<  s val
+        
+      if there are no immediate forks
+        pick the first avail move then have the computer simulate the human. go through each move - the one that I chose
+        and see if that move results in a fork for the other player.   
+      
+    
+    then choose the first move. maybe use shift to remove the value.
+    then check if this move gives me a fork. (this would help me choose a corner move if
+     #their first move is center because I could win two ways, rather than an edge where I can only win one.)
+      if it gives me fork, take it
+      else check if it gives them a fork.
+        if it gives them a fork
+    then available moves.each do
     
     
     
@@ -273,7 +293,7 @@ for each sf(available_moves or @available_simulation_moves) go through them 1 at
    
 
  ######################################## 
-
+#remove board_simulation table.  will that remove the model?
   
   def mapping_possible_wins_to_the_actual_board_state
     @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
