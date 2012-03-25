@@ -58,7 +58,7 @@ class BoardController < ApplicationController
     if @turn[:player] == "human"
       render "board/index"  
     else
-      computer_move#(this is where I need to add the @board?)  
+      computer_move  
     end
   end
      
@@ -83,17 +83,17 @@ class BoardController < ApplicationController
     end  
   end
   
-  def human_move(board)
-    set_up_turn(board)
+  def human_move
+    set_up_turn
     square_pressed = params[:square].to_sym    
-    board[square_pressed] = @human_player
+    @board[square_pressed] = @human_player
     end_turn 
   end
  
-  def computer_first_move(board)
+  def computer_first_move
     @possible_first_moves = [:s0,:s2,:s6,:s8,:s4]
     @first_move = @possible_first_moves.sample
-    board[@first_move] = @computer_player
+    @board[@first_move] = @computer_player
   end
 
   def computer_move
@@ -107,22 +107,33 @@ class BoardController < ApplicationController
     end_turn  
   end
   
-  def mapping_possible_wins_to_the_actual_board_state(board)
-    @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
-    @detect_wins = []
-    @possible_wins.each do |combination| 
-      @group = []
-      combination.each do |position|     
-        @group << @board[position]    
-      end 
-      @detect_wins << @group
+  def find_available_moves  
+    @available_moves = []
+    @board.attributes.each do |column_name, column_value|
+      @available_moves << column_name if column_value.nil?      
     end
-    @message = "#{@detect_wins}"
+  end 
+  
+  def prepare_board_for_evaluation
+    @possible_winning_combinations = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
+    @evaluation_state = []
+    @possible_winning_combinations.each do |combination| 
+      @group = []
+      combination.each do |position|
+        if @board[position] == @computer_player || @board[position] == @human_player    
+          @group << @board[position] 
+        elsif @board[position].nil?
+          @group << position     
+        end     
+      end 
+      @evaluation_state << @group
+    end
+    #@message = "#{@evaluation_state}"
   end
   
   def determine_winner
     @someone_has_won = false
-    @detect_wins.each do |value|
+    @evaluation_state.each do |value|
       if value == ["#{@computer_player}","#{@computer_player}","#{@computer_player}"]
        @message = "The Computer is the winner!"
        @someone_has_won = true
@@ -132,16 +143,9 @@ class BoardController < ApplicationController
       end  
     end
   end
-    
-  def find_available_moves(board)  
-    @available_moves = []
-    board.attributes.each do |column_name, column_value|
-      @available_moves << column_name if column_value.nil?      
-    end
-  end 
 
   def score_game
-    mapping_possible_wins_to_the_actual_board_state
+    prepare_board_for_evaluation
     determine_winner
     if !@someone_has_won && game_is_over 
       @message = "It's a draw."
@@ -156,63 +160,45 @@ class BoardController < ApplicationController
   def quit_game
     @player = Player.first.destroy
     @board = Board.first.destroy
-    @simulation_board = Simulation_board.first.destroy
     @turn = Turn.first.destroy
     render "home/index"
   end
   
-  def check_board_status(board)
-    @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
-    @check_for_possible_win = []
-    @possible_wins.each do |combination| 
-      @group = []
-      combination.each do |position|
-        if board[position] == @computer_player || board[position] == @human_player    
-          @group << board[position] 
-        elsif board[position].nil?
-          @group << position     
-        end     
-      end 
-      @check_for_possible_win << @group
-    end
-    #@message = "#{@check_for_possible_win}"
-  end
-  
-  def check_for_a_winning_move(board)
-    check_board_status(board)
-    @check_for_a_winning_move = @check_for_possible_win
+  def check_for_a_winning_move
+    prepare_board_for_evaluation
+    @check_for_a_winning_move = @evaluation_state
     @check_for_a_winning_move.keep_if {|v| v.count(@computer_player) == 2}
     @check_for_a_winning_move.delete_if {|v| v.count(@human_player) == 1}
     @check_for_a_winning_move.flatten!
     @check_for_a_winning_move.delete_if {|v| v == @computer_player}
     if
       @check_for_a_winning_move.empty? == false
-      board[@check_for_a_winning_move.first] = @computer_player
+      @board[@check_for_a_winning_move.first] = @computer_player
     else
-      check_for_a_blocking_move(board) 
+      check_for_a_blocking_move 
     end
-    @message << "#{@check_for_a_winning_move}"
+   # @message << "#{@check_for_a_winning_move}"
   end
  
-  def check_for_a_blocking_move(board)
-    check_board_status(board)
-    @check_for_a_blocking_move = @check_for_possible_win
+  def check_for_a_blocking_move
+    prepare_board_for_evaluation
+    @check_for_a_blocking_move = @evaluation_state
     @check_for_a_blocking_move.keep_if {|v| v.count(@human_player) == 2}
     @check_for_a_blocking_move.delete_if {|v| v.count(@computer_player) == 1}
     @check_for_a_blocking_move.flatten!
     @check_for_a_blocking_move.delete_if {|v| v == @human_player}
     if
       @check_for_a_blocking_move.empty? == false
-      board[@check_for_a_blocking_move.first] = @computer_player
+      @board[@check_for_a_blocking_move.first] = @computer_player
     else   
-      board[@available_moves.first] = @computer_player
+      @board[@available_moves.first] = @computer_player
       #decide_on_best_move  
     end
-    @message << "#{@check_for_a_blocking_move}"
+    #@message << "#{@check_for_a_blocking_move}"
   end
   
   def detect_terminal_state
-    @detect_wins.each do |value|
+    @evaluation_state.each do |value|
       if value == ["#{@computer_player}","#{@computer_player}","#{@computer_player}"]
        return  1
       elsif value == ["#{@human_player}","#{@human_player}","#{@human_player}"]
@@ -223,13 +209,19 @@ class BoardController < ApplicationController
     end
   end
 
-end  
+end 
+=begin 
 #####################  
   so what do i need to determine a fork?
     I first need the available moves. 
+    
+    ***** look in winning and blocking moves for clues on how to write this.  I will need some of those array methods.
+    could I possibly extend those to build it?
     best_move = []
-    available moves.each do |move|
-      if move leads to 2 [@comp, s val, @comp][ @comp, @comp, sval]
+    count = 0
+    @available moves.each do |move|
+      if move leads to 2 [@comp, s val, @comp][ @comp, @comp, sval] (@check_for_possible_moves )
+        count = count + 1
         return move
       elsif move leads to 2 [@human, s val, @human] [@human, s val, @human]
         don not -choose <<  s val
@@ -308,7 +300,7 @@ for each sf(available_moves or @available_simulation_moves) go through them 1 at
     @message = "#{@detect_wins}"
   end
   
-  def check_board_status
+  def prepare_board_for_evaluation
     @possible_wins = [[:s0,:s4,:s8], [:s2,:s4,:s6], [:s0,:s1,:s2], [:s3,:s4,:s5], [:s6,:s7,:s8], [:s0,:s3,:s6], [:s1,:s4,:s7], [:s2,:s5,:s8]]
     @check_for_possible_win = []
     @possible_wins.each do |combination| 
@@ -329,7 +321,7 @@ for each sf(available_moves or @available_simulation_moves) go through them 1 at
   
 =begin  
   def find_computer_player_containing_combos
-    check_board_status
+    prepare_board_for_evaluation
     @computer_containing_combos = @check_for_possible_win
     @computer_containing_combos.keep_if {|v| v.count(@computer_player) == 1}
     @computer_containing_combos.delete_if {|v| v.count(@human_player) == 1}
@@ -339,7 +331,7 @@ for each sf(available_moves or @available_simulation_moves) go through them 1 at
   end
 
   def find_human_player_containing_combos
-    check_board_status
+    prepare_board_for_evaluation
     @human_player_containing_combos = @check_for_possible_win
     @human_player_containing_combos.keep_if {|v| v.count(@human_player) == 1}
     @human_player_containing_combos.delete_if {|v| v.count(@computer_player) == 1}
@@ -395,5 +387,5 @@ for each sf(available_moves or @available_simulation_moves) go through them 1 at
    
    return the values of :s where there is already an x.  if two s's intersect, select that square.'
    if 2 values that are not equal are in the [ x,0 s2] go to next?
-   
+=end   
 
