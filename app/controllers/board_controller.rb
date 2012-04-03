@@ -216,7 +216,7 @@ class BoardController < ApplicationController
     find_available_moves
     @available_look_ahead_moves = []
     @available_moves.each do |move|
-      @available_look_ahead_moves << move.to_sym unless move ==
+      @available_look_ahead_moves << move.to_sym unless move == @testing_position.to_s
     end
     #@message << "#{@available_look_ahead_moves}\n"
   end
