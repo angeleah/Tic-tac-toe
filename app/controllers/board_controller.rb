@@ -173,11 +173,10 @@ class BoardController < ApplicationController
     @check_for_a_winning_move.delete_if {|v| v == @computer_player}
     if
       @check_for_a_winning_move.empty? == false
-      #@board[@check_for_a_winning_move.first] = @computer_player
+      @board[@check_for_a_winning_move.first] = @computer_player
     else
       check_for_a_blocking_move
     end
-   # @message << "#{@check_for_a_winning_move}"
   end
  
   def check_for_a_blocking_move
@@ -191,10 +190,8 @@ class BoardController < ApplicationController
       @check_for_a_blocking_move.empty? == false
       @board[@check_for_a_blocking_move.first] = @computer_player
     else
-      #@board[@available_moves.first] = @computer_player
       detect_best_move
     end
-    #@message << "#{@check_for_a_blocking_move}"
   end
  
   def detect_best_move
@@ -203,16 +200,53 @@ class BoardController < ApplicationController
   end
 
   def prep_player_simulation_moves
+    find_available_moves
     @available_player_moves = []
     @available_moves.each do |move|
       @available_player_moves << move.to_sym
     end
     @possible_computer_forks = []
-    @possible_human_forks = []
-    #@message = "#{@possible_computer_forks}"
+    @possible_human_forks = []  
+    #@message = "#{@available_player_moves}\n"
+    #@message << "#{@available_moves_for_look_ahead}"
   end
   
-  def gather_evaluation_state_for_testing_forks
+  def prep_moves_for_look_ahead
+    find_available_moves
+    @available_look_ahead_moves = []
+    @available_moves.each do |move|
+      @available_look_ahead_moves << move.to_sym
+    end
+    #@message << "#{@available_look_ahead_moves}\n"
+  end
+  
+  def check_for_computer_forks
+    if @available_player_moves.empty?
+      evaluate_possible_computer_forks
+    else
+      @testing_position = @available_player_moves.first
+      prepare_board_for_evaluation
+      @computer_fork_evaluation_state = gather_evaluation_state_with_simulation
+      sift_to_find_computer_forks
+      @available_player_moves.shift
+      #@message << "#{@available_player_moves}"
+      check_for_computer_forks
+    end
+  end
+  
+  def evaluate_possible_computer_forks
+    if @possible_computer_forks.empty?
+      prep_player_simulation_moves
+      prep_moves_for_look_ahead
+      simulate_move
+    else
+      @board[@possible_computer_forks.first] = @computer_player
+    end
+    #@message << "#{@available_player_moves}\n" 
+    #@message << "#{@available_look_ahead_moves}\n"
+  end
+  
+  def gather_evaluation_state_with_simulation
     player_evaluation_state = []
     @evaluation_state.each do |combination|
       @combos = []
@@ -239,62 +273,28 @@ class BoardController < ApplicationController
       @possible_computer_forks << @testing_position
     end
   end
-
-  def check_for_computer_forks
-    if @available_player_moves.empty? 
-      evaluate_possible_computer_forks
-    else
-      @testing_position = @available_player_moves.first
-      prepare_board_for_evaluation
-      @computer_fork_evaluation_state = gather_evaluation_state_for_testing_forks
-      sift_to_find_computer_forks
-      @available_player_moves.shift
-      #@message << "#{@available_player_moves}"
-      check_for_computer_forks
-    end
-  end
-  
-  def evaluate_possible_computer_forks
-    if @possible_computer_forks.empty?
-      prep_player_simulation_moves
-      simulate_move
-    else
-      #@board[@available_moves.first] = @computer_player
-      @board[@possible_computer_forks.first] = @computer_player
-    end
-  end
-
+ 
   def simulate_move
-    @simulation_board = Board.first
-    @available_player_moves.each do |move|
-      @simulation_board.replace value with @ computer_player_value
-      check
-    end
-  end
-     
+    @board[@available_moves.first] = @computer_player
+  end 
+=begin  
   def check_for_human_forks
-    if @available_player_moves.empty?
-      evaluate_possible_human_forks
-    else
-      @testing_position = @available_player_moves.first
-      prepare_board_for_evaluation
-      @human_fork_evaluation_state = gather_evaluation_state_for_testing_forks
-      sift_to_find_human_forks
-      @available_player_moves.shift
-     # @message = "#{@available_player_moves}"
-      check_for_human_forks
-    end
-    #@board[@available_moves.first] = @computer_player
+    @human_fork_testing_position = @available_look_ahead_moves.first
+    @human_fork_evaluation_state = []
+    @simulation_evaluation_state.each do |combination|
+      @human_combos =[]
+      combination.each do |position|
+        if position == @human_fork_testing_position
+          @human_combos << position = @human_player
+        else
+          @human_combos << position
+        end  
+      end    
+    end 
+    @board[@available_moves.first] = @computer_player
+    @message = "#{@human_fork_evaluation_state}"
   end
-   
-  def sift_to_find_human_forks
-    @human_fork_evaluation_state.keep_if {|v| v.count(@human_player) == 2}
-    @human_fork_evaluation_state.delete_if {|v| v.count(@computer_player) == 1}
-    if @human_fork_evaluation_state.length >= 2
-      @possible_forks << @testing_position
-    end
-  end
-
+=end  
 end
 
 
