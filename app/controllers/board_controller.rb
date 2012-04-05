@@ -207,25 +207,30 @@ class BoardController < ApplicationController
   end
   
   def set_up_fork_holding_array
-    @possible_forks = [] 
-    @message << "#{@possible_forks}"
+    @fork_holding_array = [] 
+    @message << "#{@fork_holding_array}"
   end
   
   def test_for_computer_forks
     if @available_fork_testing_moves.empty?
       evaluate_possible_computer_forks 
     else
-      prepare_board_for_evaluation
-     # @message << "#{@evaluation_state}"
-      @testing_position = @available_fork_testing_moves.first
-      @message << "#{@testing_position}"
-      substitute_move(@computer_player)
-      @message << "#{@evaluation_state_with_subsitute_move}"
-      test_for_a_fork(@computer_player, @human_player)
-      @available_fork_testing_moves.shift
-      @message << "#{@available_fork_testing_moves}"
+      look_a_move_ahead
+      analyze_simulation_to_find_computer_forks
       test_for_computer_forks
     end    
+  end
+  
+  def look_a_move_ahead
+    prepare_board_for_evaluation
+    #@message << "#{@evaluation_state}"
+    @testing_position = @available_fork_testing_moves.first
+    #@message << "#{@testing_position}"
+    substitute_move(@computer_player)
+    #@message << "#{@evaluation_state_with_subsitute_move}"
+    @available_fork_testing_moves.shift
+    #@message << "#{@available_fork_testing_moves}"
+    #@message << "#{@testing_position}"
   end
   
   def substitute_move(player)
@@ -243,29 +248,41 @@ class BoardController < ApplicationController
     end
   end
   
-  def test_for_a_fork(player_1, player_2)
-    @evaluation_state_with_subsitute_move.keep_if {|v| v.count(player_1) == 2}
-    @message << "#{@evaluation_state_with_subsitute_move}"
-    @evaluation_state_with_subsitute_move.delete_if {|v| v.count(player_2) == 1}
-    @message << "#{@evaluation_state_with_subsitute_move}"
+  def analyze_simulation_to_find_computer_forks
+    #@message << "#{@testing_position}"
+    @evaluation_state_with_subsitute_move.keep_if {|v| v.count(@computer_player) == 2}
+    #@message << "#{@evaluation_state_with_subsitute_move}"
+    @evaluation_state_with_subsitute_move.delete_if {|v| v.count(@human_player) == 1}
+    #@message << "#{@evaluation_state_with_subsitute_move}"
     if @evaluation_state_with_subsitute_move.length == 2
-      @possible_forks << @testing_position
+      @fork_holding_array << @testing_position
+     # @message << "#{@testing_position}"
     end
-    @message << "#{@possible_forks}"
+    #@message << "#{@fork_holding_array}"
   end
   
   def evaluate_possible_computer_forks
-    if @possible_forks.empty?
+    if @fork_holding_array.empty?
+      #@board[@available_moves.first] = @computer_player
       convert_available_moves_to_symbols
       set_up_fork_holding_array
-      @board[@available_moves.first] = @computer_player
+      test_for_human_forks
     else
-      @board[@possible_forks.first] = @computer_player 
+      @board[@fork_holding_array.first] = @computer_player 
     end  
   end
   
-  def substitute_a_move_ahead(player)
-    @evaluation_state_with_a_move_ahead = []  
+  def create_set_of_available_moves_for_looking_a_move_ahead 
+    find_available_moves
+    @available_look_ahead_moves = []
+    @available_moves.each do |move|
+      @available_look_ahead_moves << move.to_sym unless move == @testing_position.to_s
+    end
+    @message << "#{@available_look_ahead_moves}"
+  end
+  
+  def substitute_second_move_ahead(player)
+    @evaluation_state_with_a_second_move_ahead = []  
     @evaluation_state_with_subsitute_move.each do |combination|
       @combos = []
       combination.each do |position|
@@ -275,17 +292,73 @@ class BoardController < ApplicationController
           @combos << position
         end 
       end
-      @evaluation_state_with_a_move_ahead << @combos
+      @evaluation_state_with_a_second_move_ahead << @combos
     end 
   end
   
-  def create_set_of_available_moves_for_looking_a_move_ahead
-    find_available_moves
-    @available_look_ahead_moves = []
-    @available_moves.each do |move|
-      @available_look_ahead_moves << move.to_sym unless move == @testing_position.to_s
-    end
- 
+  def copy_of_evaluation_state_with_a_second_move_ahead
+    @copy_of_evaluation_state_with_a_second_move_ahead = []
+    @evaluation_state_with_a_second_move_ahead.each do |combo|
+      @copy_of_evaluation_state_with_a_second_move_ahead << combo
+    end   
+  end
+    
+  def test_for_human_forks
+    if @available_fork_testing_moves.empty?
+      evaluate_possible_human_forks
+    else    
+    look_a_move_ahead
+    @message << "#{@testing_position}"
+    create_set_of_available_moves_for_looking_a_move_ahead
+    look_a_second_move_ahead
+    #@message << "#{@evaluation_state_with_subsitute_move}"
+    #will there be a problem resetting @available_look_ahead_moves
+    end  
+  end 
+  
+  def look_a_second_move_ahead
+    @second_testing_position = @available_look_ahead_moves.first
+    @message << "#{@second_testing_position}"
+    substitute_second_move_ahead(@human_player)
+    @message << "#{@evaluation_state_with_a_second_move_ahead}"
+    copy_of_evaluation_state_with_a_second_move_ahead
+    @message << "#{@copy_of_evaluation_state_with_a_second_move_ahead}"
+    analyze_simulation_to_find_human_forks
+    #@message << "#{@testing_position}"
+    @message << "#{@evaluation_state_with_a_second_move_ahead}"
+    test_simulation_board_for_immediate_wins
+    @message << "#{@copy_of_evaluation_state_with_a_second_move_ahead}"
+    @message << "#{@testing_position}"
+  end
+  
+   def analyze_simulation_to_find_human_forks
+     @evaluation_state_with_a_second_move_ahead.keep_if {|v| v.count(@human_player) == 2}
+     #@message << "#{@evaluation_state_with_a_second_move_ahead}"
+     @evaluation_state_with_a_second_move_ahead.delete_if {|v| v.count(@computer_player) == 1}
+     #@message << "#{@evaluation_state_with_a_second_move_ahead}"
+   end
+   
+   def test_simulation_board_for_immediate_wins
+     @copy_of_evaluation_state_with_a_second_move_ahead.keep_if {|v| v.count(@computer_player) == 2}
+     @copy_of_evaluation_state_with_a_second_move_ahead.delete_if {|v| v.count(@human_player) == 1}
+   end
+   
+   def compare_human_forks_against_immediate_wins
+     if @evaluation_state_with_a_second_move_ahead.length == 2 && test_for_immediate_wins == 0
+        @fork_holding_array << @testing_position
+      end  
+      @message << "#{@fork_holding_array}"
+   end
+   
+   #need to find a way to test to see if I can have an immediate win after a computer move
+   #I need to force the computer to block if there is a blocking move? or detect that even if there
+   
+   #I need to find best move if there is no computer_fork
+   
+  def evaluate_possible_human_forks
+    #@fork_holding_array can have the same value more than 1 x? so mAybe remove duplicates?
+  end
+  #when testing for human_forks, change_the array to @evaluation_state_with_a_second_move_ahead
 end
 
 
