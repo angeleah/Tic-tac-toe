@@ -134,11 +134,12 @@ class BoardController < ApplicationController
     @someone_has_won = false
     @evaluation_state.each do |value|
       if value == ["#{@computer_player}","#{@computer_player}","#{@computer_player}"]
-       @message = "The Computer is the winner!"
-       @someone_has_won = true
+        @winning = true
+        @message = "The Computer is the winner!"
+        @someone_has_won = true
       elsif value == ["#{@human_player}","#{@human_player}","#{@human_player}"]
-       @message = "You are the winner!"
-       @someone_has_won = true
+        @message = "You are the winner!"
+        @someone_has_won = true
       end
     end
   end
@@ -289,11 +290,11 @@ class BoardController < ApplicationController
     
   def test_for_human_forks
     if @available_fork_testing_moves.empty?
-      evaluate_possible_human_forks
+       evaluate_possible_human_forks
     else
-    look_a_move_ahead
-    create_set_of_available_moves_for_looking_a_move_ahead
-    look_a_second_move_ahead
+      look_a_move_ahead
+      create_set_of_available_moves_for_looking_a_move_ahead
+      look_a_second_move_ahead
     end
   end
   

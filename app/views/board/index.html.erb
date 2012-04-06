@@ -1,6 +1,11 @@
 <p><%= link_to 'Quit game', quit_game_path %></p>
 <br />
 <p id="message"><%= @message %></p>
+<p id="winning">
+	<% if @winning %>
+		<%= image_tag 'winning.jpg' %>
+	<% end %>
+</p>
 <div id="board">
 	<table cellspacing="0" cellpadding="0">
 		<thead>
