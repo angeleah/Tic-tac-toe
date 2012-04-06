@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120316040159) do
+ActiveRecord::Schema.define(:version => 20120302153604) do
 
   create_table "boards", :force => true do |t|
     t.string   "s0"
@@ -23,21 +23,20 @@ ActiveRecord::Schema.define(:version => 20120316040159) do
     t.string   "s6"
     t.string   "s7"
     t.string   "s8"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "players", :force => true do |t|
-    t.datetime "created_at",                                                            :null => false
-    t.datetime "updated_at",                                                            :null => false
-    t.boolean  "#<ActiveRecord::ConnectionAdapters::TableDefinition:0x000001031b5888>"
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.boolean  "is_first"
   end
 
   create_table "turns", :force => true do |t|
     t.string   "player"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
 end
