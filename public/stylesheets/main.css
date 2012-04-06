@@ -30,6 +30,10 @@ td a{
 	text-align: center;
 }
 
+#top {
+	border-top-style: hidden;
+}
+
 p {
 	font-family: Arial;
 }
