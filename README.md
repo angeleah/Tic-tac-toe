@@ -1,6 +1,6 @@
 Tic-tac-toe
 ===========
-This is an unbeatable tic tac toe app written in rails.  Even though you can never win, you can tie sometimes and there is a little surprise ending when the computer wins. :D
+This is an unbeatable tic tac toe app written in rails.  Even though you can never win, you can tie sometimes and there is a little surprise ending when the computer wins. :D  This was my first unbeatable tic tac toe before I used the minimax algorithm.  It uses fork detection and calculates the best move based on winning, losing, or making a fork.
 
 To run the app:
 ---------------
